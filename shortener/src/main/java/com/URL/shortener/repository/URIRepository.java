@@ -6,4 +6,6 @@ import com.URL.shortener.model.URIModel;
 
 public interface URIRepository extends JpaRepository<URIModel, Long> {
 	URIModel findByShortUrl(String shortUrl);
+
+	URIModel findByLongUrl(String longUrl);
 }

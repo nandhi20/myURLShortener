@@ -2,8 +2,8 @@ package com.URL.shortener.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,23 +24,18 @@ public class URLController {
 	}
 
 	@RequestMapping(value = "/shortenURL", method = RequestMethod.POST, consumes = { "application/json" })
-	public String shortenUrl(@RequestBody @Valid URIRequest shortenRequest, HttpServletRequest request) {
+	public ResponseEntity<?> shortenUrl(@RequestBody URIRequest shortenRequest) {
 
-		String shortenedUrl = converterRestService.generateshortURL(request.getRequestURL().toString(),
-				shortenRequest.getUrl());
-
-		return shortenedUrl;
+		return ResponseEntity.ok().body(converterRestService.generateShortURL(shortenRequest.getUrl()));
 
 	}
 
 	@RequestMapping(value = "/{shortUrl}", method = RequestMethod.GET)
 	public RedirectView redirectUrl(@PathVariable String shortUrl, HttpServletRequest request,
 			HttpServletResponse response) {
-		String redirectUrlString = converterRestService.getLongURLFromID(shortUrl);
 
-		RedirectView redirectView = new RedirectView();
-		redirectView.setUrl(redirectUrlString);
-		return redirectView;
+		return new RedirectView(converterRestService.getLongURLFromID(shortUrl));
+
 	}
 
 }

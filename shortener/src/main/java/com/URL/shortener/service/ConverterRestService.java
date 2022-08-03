@@ -1,40 +1,30 @@
 package com.URL.shortener.service;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.URL.shortener.model.URIModel;
 import com.URL.shortener.repository.URIRepository;
 
-@Component
+@Service
 public class ConverterRestService {
 
 	public final URIRepository URIRepository;
+	public final String BASEURL = "http://localhost:8080/";
 
 	public ConverterRestService(URIRepository URIRepository) {
 		this.URIRepository = URIRepository;
 	}
 
 	@SuppressWarnings("static-access")
-	public String generateshortURL(String localURL, String longUrl) {
-		Long id = URIRepository.count();
-		String uniqueID = Encoder.INSTANCE.createUniqueID(id + 1);
-		String baseString = formatLocalURLFromShortener(localURL);
-		String shortenedURL = baseString + uniqueID;
+	public String generateShortURL(String longUrl) {
 
-		URIModel URIModel = new URIModel(uniqueID, longUrl);
-		URIRepository.save(URIModel);
-
-		return shortenedURL;
-	}
-
-	private String formatLocalURLFromShortener(String localURL) {
-		String[] addressComponents = localURL.split("/");
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < addressComponents.length - 1; ++i) {
-			sb.append(addressComponents[i]);
+		URIModel URIModel = URIRepository.findByLongUrl(longUrl);
+		if (null == URIModel) {
+			String uniqueID = Encoder.generateCode();
+			URIModel = new URIModel(uniqueID, longUrl);
+			URIRepository.save(URIModel);
 		}
-		sb.append('/');
-		return sb.toString();
+		return BASEURL + URIModel.getShortUrl();
 	}
 
 	public String getLongURLFromID(String shortUrl) {
